@@ -6,9 +6,9 @@ export default function ProtectedLayout({
 }) {
   return (
     <>  
-      <main>
+      <main className="">
         <div>
-          <h1>Truco Venezolano</h1>
+          {children}
         </div>
       </main>
     </>

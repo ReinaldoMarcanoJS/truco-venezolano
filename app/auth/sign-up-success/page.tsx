@@ -8,7 +8,7 @@ import {
 
 export default function Page() {
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-[url(@/public/naipes.png)] bg-cover bg-center">
+    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10  bg-naipes bg-cover bg-center">
       <div className="w-full max-w-sm">
         <div className="flex flex-col gap-6">
           <Card className="bg-black/50 backdrop-blur-md border border-white/20 shadow-2xl rounded-2xl">
