@@ -68,5 +68,5 @@
 }
 
 .bg-naipes {
-  background-image: url('/naipes.png');
+  background-image: url('../public/naipes.png');
 }
