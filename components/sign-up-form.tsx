@@ -20,6 +20,7 @@ export function SignUpForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  const [name, setName] = useState(""); // <-- Nuevo estado
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
@@ -45,6 +46,7 @@ export function SignUpForm({
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/protected/lobby`,
+          data: { name }, // <-- Guardar el nombre en user_metadata
         },
       });
       if (error) throw error;
@@ -76,6 +78,20 @@ export function SignUpForm({
         <CardContent>
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="name" className="text-white drop-shadow-md">
+                  Nombre
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  required
+                  placeholder="Tu nombre"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="bg-black/40 border border-yellow-400/40 text-white placeholder:text-gray-300 focus:border-yellow-500 focus:ring-yellow-500"
+                />
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="email" className="text-white drop-shadow-md">
                   Email
