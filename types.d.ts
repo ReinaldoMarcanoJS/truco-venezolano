@@ -25,3 +25,38 @@ export type SupabaseUser = {
     [key: string]: any;
   };
 };
+
+export type Jugador = {
+  id: string;
+  name: string;
+  photo?: string;
+  mesa_id?: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type Mesa = {
+  id: string;
+  puntos: 12 | 24;
+  apuesta: number;
+  creador_id?: string;
+  estado: 'esperando' | 'jugando' | 'terminada';
+  created_at?: string;
+  updated_at?: string;
+  jugadores?: Jugador[];
+  jugadores_mesas?: JugadorMesa[];
+};
+
+export type JugadorMesa = {
+  id: number;
+  mesa_id: string;
+  jugador_id: string;
+  posicion: number;
+  created_at?: string;
+  jugadores?: Jugador;
+};
+
+export type UserContextType = {
+  user: SupabaseUser | null;
+  loading: boolean;
+};
