@@ -41,16 +41,24 @@ export function SignUpForm({
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      // Crear usuario en Supabase - el trigger automático creará el jugador
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/protected/lobby`,
-          data: { name }, // <-- Guardar el nombre en user_metadata
+          data: { name },
         },
       });
+
       if (error) throw error;
-      router.push("/auth/sign-up-success");
+
+      if (data.user) {
+        console.log('Usuario creado exitosamente. El trigger automático creará el perfil de jugador.');
+        
+        // Redirigir al usuario
+        router.push("/auth/login");
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Ha ocurrido un error");
     } finally {
