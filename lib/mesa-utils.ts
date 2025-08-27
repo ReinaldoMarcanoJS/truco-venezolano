@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import { Mesa, Jugador, JugadorMesa } from "@/types";
+import { Mesa, Jugador } from "@/types";
 
 export const mesaUtils = {
   // Obtener todas las mesas con sus jugadores
@@ -61,9 +61,10 @@ export const mesaUtils = {
       }
 
       return { success: true, mesa };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating mesa:', error);
-      return { success: false, error: error.message };
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      return { success: false, error: errorMessage };
     }
   },
 
@@ -108,9 +109,10 @@ export const mesaUtils = {
       }
       
       return { success: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error joining mesa:', error);
-      return { success: false, error: error.message };
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      return { success: false, error: errorMessage };
     }
   },
 
@@ -226,10 +228,10 @@ export const mesaUtils = {
 
       if (error) throw error;
       
-      return data?.map((item: any) => ({
-        id: item.jugadores.id,
-        name: item.jugadores.name,
-        photo: item.jugadores.photo,
+      return data?.map((item: { jugadores: { id: string; name: string; photo?: string }[]; posicion: number }) => ({
+        id: item.jugadores[0]?.id || '',
+        name: item.jugadores[0]?.name || '',
+        photo: item.jugadores[0]?.photo,
         posicion: item.posicion
       })) || [];
     } catch (error) {

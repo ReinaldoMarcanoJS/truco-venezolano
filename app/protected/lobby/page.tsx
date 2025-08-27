@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import MyHeader from "@/components/Header";
 import { useUser } from "@/context/UserContext";
 import { nanoid } from "nanoid";
@@ -27,21 +27,22 @@ export default function ProtectedPage() {
     }
   }, [error]);
 
-  useEffect(() => {
-    loadMesas();
-    checkUserMesa();
-  }, [user?.id]);
-
-  const loadMesas = async () => {
+  const loadMesas = useCallback(async () => {
     const mesasData = await mesaUtils.getMesas();
     setMesas(mesasData);
-  };
+  }, []);
 
-  const checkUserMesa = async () => {
+  const checkUserMesa = useCallback(async () => {
     if (!user?.id) return;
     const mesaId = await mesaUtils.getUserMesa(user.id);
     setUserMesa(mesaId);
-  };
+  }, [user?.id]);
+
+  // Cargar mesas y verificar mesa del usuario
+  useEffect(() => {
+    loadMesas();
+    checkUserMesa();
+  }, [loadMesas, checkUserMesa]);
 
   const handleMesaCreated = (mesa: Mesa) => {
     setMesas((prev) => [mesa, ...prev]);
@@ -83,8 +84,9 @@ export default function ProtectedPage() {
       } else {
         setError(result.error || "Error al crear la mesa. Intenta de nuevo.");
       }
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -102,8 +104,9 @@ export default function ProtectedPage() {
       } else {
         setError(result.error || "Error al unirse a la mesa. Intenta de nuevo.");
       }
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      setError(errorMessage);
     }
   };
 
@@ -130,9 +133,10 @@ export default function ProtectedPage() {
         console.log("Error al salir de la mesa");
         setError("Error al salir de la mesa. Intenta de nuevo.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error en leaveMesa:", error);
-      setError(error.message);
+      const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
+      setError(errorMessage);
     }
   };
 
