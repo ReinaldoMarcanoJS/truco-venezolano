@@ -5,6 +5,7 @@ import { useUser } from "@/context/UserContext";
 import { nanoid } from "nanoid";
 import { mesaUtils } from "@/lib/mesa-utils";
 import { Mesa } from "@/types";
+import Image from "next/image";
 
 export default function ProtectedPage() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -22,7 +23,7 @@ export default function ProtectedPage() {
       const timer = setTimeout(() => {
         setError(null);
       }, 3000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [error]);
@@ -119,10 +120,10 @@ export default function ProtectedPage() {
     try {
       console.log("Intentando salir de la mesa:", userMesa);
       console.log("Usuario ID:", user.id);
-      
+
       const success = await mesaUtils.leaveMesa(user.id);
       console.log("Resultado de salir:", success);
-      
+
       if (success) {
         console.log("Salida exitosa, actualizando estado...");
         setUserMesa(null);
@@ -155,12 +156,13 @@ export default function ProtectedPage() {
     if (jugador) {
       const isCurrentUser = jugador.id === user?.id;
       return (
-        <div className={`flex items-center gap-3 p-3 border border-emerald-400/50 rounded-xl w-full transition-all duration-200 ${
-          isCurrentUser 
-            ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-black shadow-lg' 
+        <div className={`flex items-center gap-3 p-3 border border-emerald-400/50 rounded-xl w-full transition-all duration-200 ${isCurrentUser
+            ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-black shadow-lg'
             : 'bg-black/40 text-white hover:bg-black/60'
-        }`}>
-          <img
+          }`}>
+          <Image
+            width={32}
+            height={32}
             src={jugador.photo || "/default-profile.png"}
             alt={jugador.name}
             className="w-8 h-8 rounded-full border-2 border-emerald-400/50 flex-shrink-0"
@@ -185,7 +187,9 @@ export default function ProtectedPage() {
     if (idx === 0 && mesa.creador_id === user?.id) {
       return (
         <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-yellow-400 to-yellow-500 border border-emerald-400/50 rounded-xl w-full shadow-lg">
-          <img
+          <Image
+            width={32}
+            height={32}
             src={user?.user_metadata?.photo || "/default-profile.png"}
             alt={user?.user_metadata?.name}
             className="w-8 h-8 rounded-full border-2 border-emerald-400/50 flex-shrink-0"
@@ -221,10 +225,10 @@ export default function ProtectedPage() {
     <div className="min-h-screen bg-gradient-to-br from-black/90 via-emerald-900/20 to-black/90">
       <main className="min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <MyHeader />
-        
+
         {/* Contenedor principal */}
         <div className="bg-black/40 backdrop-blur-xl border border-emerald-500/30 rounded-2xl shadow-2xl p-6 sm:p-8">
-          
+
           {/* Header de la página */}
           <div className="text-center mb-8">
             <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-emerald-400 via-yellow-400 to-emerald-400 bg-clip-text text-transparent mb-2">
@@ -267,11 +271,10 @@ export default function ProtectedPage() {
           {/* Botón crear mesa */}
           <div className="flex justify-center mb-8">
             <button
-              className={`px-6 py-3 rounded-xl shadow-lg font-bold text-sm sm:text-base transition-all duration-200 ${
-                userMesa 
-                  ? 'bg-gray-600 text-gray-300 cursor-not-allowed opacity-60' 
+              className={`px-6 py-3 rounded-xl shadow-lg font-bold text-sm sm:text-base transition-all duration-200 ${userMesa
+                  ? 'bg-gray-600 text-gray-300 cursor-not-allowed opacity-60'
                   : 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-black hover:from-yellow-300 hover:to-yellow-400 hover:scale-105 active:scale-95'
-              }`}
+                }`}
               onClick={() => !userMesa && setModalOpen(true)}
               disabled={!!userMesa}
             >
@@ -287,7 +290,7 @@ export default function ProtectedPage() {
                   <h2 className="text-2xl font-bold">Crear Nueva Mesa</h2>
                   <p className="text-emerald-100 text-sm mt-1">Configura los parámetros de tu mesa</p>
                 </div>
-                
+
                 <form onSubmit={handleSubmit} className="p-6 space-y-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Puntos del Juego</label>
@@ -300,7 +303,7 @@ export default function ProtectedPage() {
                       <option value={24}>24 puntos (2 vs 2)</option>
                     </select>
                   </div>
-                   
+
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Apuesta (Bs)</label>
                     <select
@@ -317,7 +320,7 @@ export default function ProtectedPage() {
                       ))}
                     </select>
                   </div>
-                   
+
                   <div className="flex gap-3 pt-4">
                     <button
                       type="button"

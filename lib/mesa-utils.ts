@@ -10,7 +10,7 @@ export const mesaUtils = {
       .select("*");
 
     if (error) {
-      console.error('Error fetching mesas:', error.message);
+      console.log('Error fetching mesas:', error.message);
       return [];
     }
 

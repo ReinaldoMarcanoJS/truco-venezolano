@@ -11,6 +11,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data }) => {
       setUser(data?.user|| null);
+      console.log(supabase.auth.getUser());
+      
+      console.log(data);
+      
     });
     // Opcional: suscribirse a cambios de sesión
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
