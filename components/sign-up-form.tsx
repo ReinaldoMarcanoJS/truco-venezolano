@@ -186,6 +186,7 @@ export function SignUpForm({
                     },
                   });
                   if (error) {
+                    alert("Error al iniciar sesión con Facebook: " + error.message);
                     setError(error.message);
                     setIsLoading(false);
                   }
