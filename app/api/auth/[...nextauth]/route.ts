@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import FacebookProvider from "next-auth/providers/facebook";
 
-export const authOptions = {
+// Configuración de NextAuth
+const handler = NextAuth({
   providers: [
     FacebookProvider({
       clientId: process.env.FACEBOOK_CLIENT_ID!,
@@ -9,9 +10,9 @@ export const authOptions = {
     }),
   ],
   pages: {
-    signIn: "/auth/login", // tu página de login si tienes personalizada
+    signIn: "/auth/login", // opcional
   },
-};
+});
 
-const handler = NextAuth(authOptions);
+// Exporta el handler como GET y POST
 export { handler as GET, handler as POST };
