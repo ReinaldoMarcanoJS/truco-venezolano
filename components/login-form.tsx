@@ -125,6 +125,41 @@ export function LoginForm({
           </form>
         </CardContent>
       </Card>
+      {/* <div className="mt-6 flex flex-col items-center">
+              <Button
+                type="button"
+                className="w-full bg-blue-600 text-white font-semibold shadow-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-2"
+                disabled={isLoading}
+                onClick={async () => {
+                  setIsLoading(true);
+                  setError(null);
+                  const supabase = createClient();
+                  const { error } = await supabase.auth.signInWithOAuth({
+                    provider: "facebook",
+                    options: {
+                      redirectTo: `${window.location.origin}/protected/lobby`,
+                    },
+                  });
+                  if (error) {
+                    alert("Error al iniciar sesión con Facebook: " + error.message);
+                    setError(error.message);
+                    setIsLoading(false);
+                  }
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  className="mr-2"
+                >
+                  <path d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.408.595 24 1.326 24h11.495v-9.294H9.691v-3.622h3.13V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.405 24 24 23.408 24 22.674V1.326C24 .592 23.405 0 22.675 0"/>
+                </svg>
+                Iniciar sesión con Facebook
+              </Button>
+            </div> */}
     </div>
   );
 }

@@ -28,7 +28,7 @@ export type SupabaseUser = {
 
 export type Jugador = {
   id: string;
-  name: string;
+  nombre: string;
   photo?: string;
   mesa_id?: string;
   created_at?: string;
@@ -44,7 +44,7 @@ export type Mesa = {
   created_at?: string;
   updated_at?: string;
   jugadores?: Jugador[];
-  jugadores_mesas?: JugadorMesa[];
+  mesa_jugadores?: JugadorMesa[];
 };
 
 export type JugadorMesa = {

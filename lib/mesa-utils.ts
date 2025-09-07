@@ -7,13 +7,26 @@ export const mesaUtils = {
     const supabase = createClient();
     const { data, error } = await supabase
       .from("mesas")
-      .select("*");
+      .select(`
+        *,
+        mesa_jugadores (
+          posicion,
+          equipo,
+          user_id,
+          jugadores (
+            id,
+            nombre,
+            avatar_url,
+            email
+          )
+        )
+      `)
+      .order("creada_en", { ascending: false });
 
     if (error) {
-      console.log('Error fetching mesas:', error.message);
+      console.error("Error al obtener mesas:", error);
       return [];
     }
-
     return data || [];
   },
 
@@ -25,8 +38,9 @@ export const mesaUtils = {
     creador_id: string;
   }): Promise<{ success: boolean; mesa?: Mesa; error?: string }> {
     const supabase = createClient();
-    
+
     try {
+      console.log("Creating mesa with data:", mesaData);
       // Verificar si el creador ya está en otra mesa
       const currentMesa = await this.getUserMesa(mesaData.creador_id);
       if (currentMesa) {
@@ -34,6 +48,7 @@ export const mesaUtils = {
       }
 
       // Crear la mesa
+      // mesaData debe tener: id, puntos, apuesta, creador_id
       const { error: mesaError, data: mesa } = await supabase
         .from("mesas")
         .insert([{
@@ -47,11 +62,12 @@ export const mesaUtils = {
 
       // Agregar el creador a la mesa
       const { error: jugadorError } = await supabase
-        .from("jugadores_mesas")
+        .from("mesa_jugadores")
         .insert([{
           mesa_id: mesaData.id,
-          jugador_id: mesaData.creador_id,
-          posicion: 0
+          user_id: mesaData.creador_id,
+          posicion: 0,
+          equipo: 1 // <--- agrega esto
         }]);
 
       if (jugadorError) {
@@ -63,6 +79,8 @@ export const mesaUtils = {
       return { success: true, mesa };
     } catch (error: unknown) {
       console.error('Error creating mesa:', error);
+      console.log(error);
+
       const errorMessage = error instanceof Error ? error.message : 'Error desconocido';
       return { success: false, error: errorMessage };
     }
@@ -71,7 +89,7 @@ export const mesaUtils = {
   // Unirse a una mesa
   async joinMesa(mesaId: string, jugadorId: string, posicion: number): Promise<{ success: boolean; error?: string }> {
     const supabase = createClient();
-    
+
     try {
       // Verificar si el jugador ya está en otra mesa
       const currentMesa = await this.getUserMesa(jugadorId);
@@ -82,8 +100,8 @@ export const mesaUtils = {
 
       // Verificar si la posición está ocupada
       const { data: posicionOcupada } = await supabase
-        .from("jugadores_mesas")
-        .select("jugador_id")
+        .from("mesa_jugadores")
+        .select("user_id")
         .eq("mesa_id", mesaId)
         .eq("posicion", posicion)
         .single();
@@ -94,11 +112,12 @@ export const mesaUtils = {
 
       // Unirse a la nueva mesa
       const { error } = await supabase
-        .from("jugadores_mesas")
+        .from("mesa_jugadores")
         .insert([{
           mesa_id: mesaId,
-          jugador_id: jugadorId,
-          posicion: posicion
+          user_id: jugadorId,
+          posicion: posicion,
+          equipo: posicion < 2 ? 1 : 2 // <--- equipo según la posición
         }]);
 
       if (error) {
@@ -107,7 +126,7 @@ export const mesaUtils = {
         }
         throw error;
       }
-      
+
       return { success: true };
     } catch (error: unknown) {
       console.error('Error joining mesa:', error);
@@ -119,15 +138,15 @@ export const mesaUtils = {
   // Salir de una mesa
   async leaveMesa(jugadorId: string): Promise<boolean> {
     const supabase = createClient();
-    
+
     try {
       console.log("leaveMesa: Iniciando proceso para jugador:", jugadorId);
-      
+
       // Obtener la mesa del jugador antes de salir
       const { data: jugadorMesa, error: fetchError } = await supabase
-        .from("jugadores_mesas")
+        .from("mesa_jugadores")
         .select("mesa_id")
-        .eq("jugador_id", jugadorId)
+        .eq("user_id", jugadorId)
         .single();
 
       if (fetchError) {
@@ -145,9 +164,9 @@ export const mesaUtils = {
 
       // Salir de la mesa
       const { error: leaveError } = await supabase
-        .from("jugadores_mesas")
+        .from("mesa_jugadores")
         .delete()
-        .eq("jugador_id", jugadorId);
+        .eq("user_id", jugadorId);
 
       if (leaveError) {
         console.error("leaveMesa: Error al salir:", leaveError);
@@ -158,7 +177,7 @@ export const mesaUtils = {
 
       // Verificar si la mesa quedó vacía
       const { data: jugadoresRestantes, error: checkError } = await supabase
-        .from("jugadores_mesas")
+        .from("mesa_jugadores")
         .select("id")
         .eq("mesa_id", mesaId);
 
@@ -174,7 +193,7 @@ export const mesaUtils = {
           .from("mesas")
           .delete()
           .eq("id", mesaId);
-        
+
         if (deleteError) {
           console.error("leaveMesa: Error al eliminar mesa vacía:", deleteError);
         } else {
@@ -192,12 +211,12 @@ export const mesaUtils = {
   // Verificar si un jugador está en una mesa
   async getUserMesa(jugadorId: string): Promise<string | null> {
     const supabase = createClient();
-    
+
     try {
       const { data, error } = await supabase
-        .from("jugadores_mesas")
+        .from("mesa_jugadores")
         .select("mesa_id")
-        .eq("jugador_id", jugadorId)
+        .eq("user_id", jugadorId)
         .single();
 
       if (error) return null;
@@ -211,10 +230,10 @@ export const mesaUtils = {
   // Obtener jugadores de una mesa
   async getMesaJugadores(mesaId: string): Promise<Jugador[]> {
     const supabase = createClient();
-    
+
     try {
       const { data, error } = await supabase
-        .from("jugadores_mesas")
+        .from("mesa_jugadores")
         .select(`
           posicion,
           jugadores (
@@ -227,10 +246,10 @@ export const mesaUtils = {
         .order('posicion');
 
       if (error) throw error;
-      
+
       return data?.map((item: { jugadores: { id: string; name: string; photo?: string }[]; posicion: number }) => ({
         id: item.jugadores[0]?.id || '',
-        name: item.jugadores[0]?.name || '',
+        nombre: item.jugadores[0]?.name || '',
         photo: item.jugadores[0]?.photo,
         posicion: item.posicion
       })) || [];
@@ -243,15 +262,15 @@ export const mesaUtils = {
   // Verificar si una mesa está llena
   async isMesaFull(mesaId: string): Promise<boolean> {
     const supabase = createClient();
-    
+
     try {
       const { data, error } = await supabase
-        .from("jugadores_mesas")
+        .from("mesa_jugadores")
         .select("id")
         .eq("mesa_id", mesaId);
 
       if (error) throw error;
-      
+
       // Obtener la mesa para saber cuántos puntos tiene
       const { data: mesa } = await supabase
         .from("mesas")
@@ -270,7 +289,7 @@ export const mesaUtils = {
   // Eliminar una mesa (solo el creador)
   async deleteMesa(mesaId: string, creadorId: string): Promise<boolean> {
     const supabase = createClient();
-    
+
     try {
       const { error } = await supabase
         .from("mesas")
@@ -286,3 +305,4 @@ export const mesaUtils = {
     }
   }
 };
+
